@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>OpenVPN服务安装配置简明教程 | I&#39;m Here | 给岁月以文明</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="theme-color" content="#3F51B5">
+  
+  
+  <meta name="keywords" content="OpenVPN">
+  <meta name="description" content="OpenVPN概念VPN，即Virtual Private Networking，虚拟专用网络，而OpenVPN则是一套能让不同局域网下的机器之间建立安全隧道的解决方案。
+本文要讲什么在CentOS7上安装和配置OpenVPN，涉及到的系统相关名词有rpm、yum、firewalld等。
+配置服务端CentOS7默认源里木有OpenVPN，所以我们首先要添加EPEL的源。
+1rpm -Uvh ht">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenVPN服务安装配置简明教程">
+<meta property="og:url" content="https://blog.welee.space/openvpn/index.html">
+<meta property="og:site_name" content="I'm Here">
+<meta property="og:description" content="OpenVPN概念VPN，即Virtual Private Networking，虚拟专用网络，而OpenVPN则是一套能让不同局域网下的机器之间建立安全隧道的解决方案。
+本文要讲什么在CentOS7上安装和配置OpenVPN，涉及到的系统相关名词有rpm、yum、firewalld等。
+配置服务端CentOS7默认源里木有OpenVPN，所以我们首先要添加EPEL的源。
+1rpm -Uvh ht">
+<meta property="og:updated_time" content="2016-07-26T04:57:31.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OpenVPN服务安装配置简明教程">
+<meta name="twitter:description" content="OpenVPN概念VPN，即Virtual Private Networking，虚拟专用网络，而OpenVPN则是一套能让不同局域网下的机器之间建立安全隧道的解决方案。
+本文要讲什么在CentOS7上安装和配置OpenVPN，涉及到的系统相关名词有rpm、yum、firewalld等。
+配置服务端CentOS7默认源里木有OpenVPN，所以我们首先要添加EPEL的源。
+1rpm -Uvh ht">
+  
+    <link rel="alternative" href="/atom.xml" title="I&#39;m Here" type="application/atom+xml">
+  
+  <meta name="summary" content="博客后花园，收集-整理-分享">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="loading" class="active"></div>
+
+  <nav id="menu" class="hide" >
+   <div class="inner flex-row-vertical">
+  <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+      <i class="icon icon-lg icon-close"></i>
+  </a>
+  <div class="brand-wrap">
+    <div class="brand">
+      <a href="/" class="avatar"><img src="/img/logo.png"></a>
+      <hgroup class="introduce">
+        <h5 class="nickname">Welee</h5>
+        <a href="mailto:undefined" title="admin@welee.space" class="mail">admin@welee.space</a>
+      </hgroup>
+    </div>
+  </div>
+  <ul class="nav flex-col">
+    
+        <li class="waves-block waves-effect">
+          <a href="/"  >
+            <i class="icon icon-lg icon-home"></i>
+            主页
+          </a>
+        </li>
+    
+        <li class="waves-block waves-effect">
+          <a href="/archives"  >
+            <i class="icon icon-lg icon-archives"></i>
+            归档
+          </a>
+        </li>
+    
+        <li class="waves-block waves-effect">
+          <a href="/tags"  >
+            <i class="icon icon-lg icon-tags"></i>
+            标签
+          </a>
+        </li>
+    
+        <li class="waves-block waves-effect">
+          <a href="https://github.com/cnwelee" target="_blank" >
+            <i class="icon icon-lg icon-github"></i>
+            仓库
+          </a>
+        </li>
+    
+        <li class="waves-block waves-effect">
+          <a href="http://www.weibo.com/welee" target="_blank" >
+            <i class="icon icon-lg icon-weibo"></i>
+            微博
+          </a>
+        </li>
+    
+        <li class="waves-block waves-effect">
+          <a href="/ad"  >
+            <i class="icon icon-lg icon-link"></i>
+            广告
+          </a>
+        </li>
+    
+  </ul>
+
+  <footer class="footer">
+  <p><a rel="license" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0;vertical-align:middle;" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAAPCAMAAABEF7i9AAAAllBMVEUAAAD///+rsapERER3d3eIiIjMzMzu7u4iIiKUmZO6v7rKzsoODg4RERFVVVUNDQ0NDg0PEA8zMzNLTEtbXltmZmZydnF9gn2AgICPkI+ZmZmqqqq7u7vFxsXIzMgNDQwZGRkgICAhISEkJSMnKCcuMC4xMzE5Ozk7PTtBQkFCQkJDQ0Nna2eGhoaHh4ezuLLGysbd3d1wVGpAAAAA4UlEQVR42q2T1xqCMAyFk7QsBQeKA9x7j/d/OSm22CpX0nzcpA1/T05aAOuBVkMAScQFHLnEwoCo2f1TnQIGoVMewjZEjVFN4GH1Ue1Cn2jWqwfsOOj6wDwGvotsl/c8lv7KIq1eLOsT0HMFHMIE/RZyHnlphryT9zyV+8WH5e8yQw3wnQvgAFxPTKUVi555SHR/lOfLMgVTeDlSfN+TaoUsiTyeIm+bCkHvCA2FUKG48LDtYBZBknsYP/G8NTw0gaaHyuQf4H5pecrB/FYCT2sL9zAfy1Xyjou6L8X2W7YcLyBZCRtnq/zfAAAAAElFTkSuQmCC" /></a></p>
+  <p>I&#39;m Here &copy; 2016</p>
+  <p>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+  <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></p>
+  <a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-2x icon-rss-square"></i></a>
+</footer>
+
+</div>
+
+  </nav>
+  <main id="main">
+    <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">OpenVPN服务安装配置简明教程</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input " autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-share">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header">
+  <div class="container">
+    <h1 class="author">OpenVPN服务安装配置简明教程</h1>
+    <h5 class="subtitle">
+        
+            <time datetime="2016-04-17T03:11:11.000Z" itemprop="datePublished" class="page-time">
+  2016-04-17
+</time>
+
+
+        
+    </h5>
+  </div>
+</header>
+
+    <div class="container body-wrap">
+      <article id="post-openvpn" 
+  class="article article-type-post" itemprop="blogPost">
+    <div class="post-meat flex-row">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenVPN/">OpenVPN</a></li></ul>
+
+    </div>
+    <div class="post-body">
+        <aside class="post-widget" id="post-widget">
+
+            
+            <div class="post-share" id="post-share">
+    <div class="tit">分享到：</div>
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" href="javascript:;" data-title="微博" data-service="tsina">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns" href="javascript:;" data-title="微信" data-service="weixin">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" href="javascript:;" data-title=" QQ" data-service="cqq">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" href="javascript:;" data-title=" Facebook" data-service="fb">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" href="javascript:;" data-title=" Twitter" data-service="twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="douban share-sns" href="javascript:;" data-title="豆瓣" data-service="douban">
+          豆
+        </a>
+      </li>
+    </ul>
+ </div>
+
+            
+
+            
+            <nav class="post-toc-wrap" id="post-toc">
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#OpenVPN概念"><span class="post-toc-text">OpenVPN概念</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#本文要讲什么"><span class="post-toc-text">本文要讲什么</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#配置服务端"><span class="post-toc-text">配置服务端</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#配置客户端"><span class="post-toc-text">配置客户端</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Linux"><span class="post-toc-text">Linux</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Windows"><span class="post-toc-text">Windows</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Mac-OS"><span class="post-toc-text">Mac OS</span></a></li></ol></li></ol>
+            </nav>
+            
+        </aside>
+
+        <div class="post-main">
+
+            <div class="post-content" id="post-content" itemprop="postContent">
+            <h2 id="OpenVPN概念"><a href="#OpenVPN概念" class="headerlink" title="OpenVPN概念"></a>OpenVPN概念</h2><p>VPN，即Virtual Private Networking，虚拟专用网络，而OpenVPN则是一套能让不同局域网下的机器之间建立安全隧道的解决方案。</p>
+<h2 id="本文要讲什么"><a href="#本文要讲什么" class="headerlink" title="本文要讲什么"></a>本文要讲什么</h2><p>在CentOS7上安装和配置OpenVPN，涉及到的系统相关名词有rpm、yum、firewalld等。</p>
+<h2 id="配置服务端"><a href="#配置服务端" class="headerlink" title="配置服务端"></a>配置服务端</h2><p>CentOS7默认源里木有OpenVPN，所以我们首先要添加EPEL的源。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rpm -Uvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm</div></pre></td></tr></table></figure>
+<p>使用Yum安装OpenVPN和easy-rsa包（后者用于签发证书）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">yum install openvpn easy-rsa</div></pre></td></tr></table></figure>
+<p>为了防止升级<code>easy-rsa</code>包时你的改动被覆盖掉，把生成证书的脚本拷贝到<code>/etc/openvpn/easy-rsa/</code>目录。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">rsync -av /usr/share/easy-rsa/2.0/ /etc/openvpn/easy-rsa/</div></pre></td></tr></table></figure>
+<p>进入<code>easy-rsa</code>目录并且根据你的需求编辑<code>vars</code>文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">cd</span> /etc/openvpn/easy-rsa/ </div><div class="line">vim /etc/openvpn/easy-rsa/vars</div></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">export</span> KEY_COUNTRY=<span class="string">"CN"</span> </div><div class="line"><span class="built_in">export</span> KEY_PROVINCE=<span class="string">"BJ"</span> </div><div class="line"><span class="built_in">export</span> KEY_CITY=<span class="string">"BeiJing"</span> </div><div class="line"><span class="built_in">export</span> KEY_ORG=<span class="string">"Weformation LTD"</span> </div><div class="line"><span class="built_in">export</span> KEY_EMAIL=<span class="string">"admin@cnwelee.me"</span> </div><div class="line"><span class="built_in">export</span> KEY_CN=cnwelee.me </div><div class="line"><span class="built_in">export</span> KEY_NAME=server </div><div class="line"><span class="built_in">export</span> KEY_OU=server</div></pre></td></tr></table></figure>
+<p>下面我们需要使用<code>esay-rsa</code>目录下的脚本们来生成必要文件</p>
+<p>调用<code>vars</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">../vars</div></pre></td></tr></table></figure>
+<p>清空<code>keys</code>目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">./clean-all</div></pre></td></tr></table></figure>
+<p>生成服务端证书和密钥</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">./build-key-server server</div></pre></td></tr></table></figure>
+<p>生成Diffie-Hellman 参数 .pem文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">./build-dh</div></pre></td></tr></table></figure>
+<p>生成第一个客户端密钥</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">./build-key client1</div></pre></td></tr></table></figure>
+<p>重复这一步可以为每个需要连接本OpenVPN服务器的客户端生成密钥。</p>
+<p>复制所有生成的服务器端文件到<code>/etc/openvpn</code>目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cp /etc/openvpn/easy-rsa/keys/&#123;dh2048.pem,ca.crt,server.crt,server.key&#125; /etc/openvpn/</div></pre></td></tr></table></figure>
+<p>OpenVPN附带一个服务端配置示例文档，我们会以它为模板进行修改。首先把它拷过来：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cp /usr/share/doc/openvpn-2.3.8/sample/sample-config-files/server.conf /etc/openvpn/</div></pre></td></tr></table></figure>
+<p>现在我们来编辑<code>server.conf</code>文件，因为我们使用2048位的密钥所以我们修改<code>dh dh1024.pem</code>为<code>dh dh2048.pem</code>:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sed -i <span class="string">'s/dh dh1024.pem/dh dh2048.pem/'</span> /etc/openvpn/server.conf</div></pre></td></tr></table></figure>
+<p>为了让客户端的流量可以通过服务器，把<code>redirect-gateway</code>选项的注释去掉</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sed -i <span class="string">'/redirect-gateway/s/^;//'</span> /etc/openvpn/server.conf</div></pre></td></tr></table></figure>
+<p>推送DNS服务器到客户端（默认是OpenDNS）:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sed -i &apos;/dhcp-option/s/^;//g&apos; /etc/openvpn/server.conf</div></pre></td></tr></table></figure>
+<p>把<code>user nobody</code>和<code>group nobody</code>的注释去掉，这样可以以较少的权限运行OpenVPN</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sed -i <span class="string">'/nobody/s/^;//g'</span> /etc/openvpn/server.conf</div></pre></td></tr></table></figure>
+<p>现在我们可以使用以下命令开启OpenVPN服务了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">systemctl start openvpn@server.service</div></pre></td></tr></table></figure>
+<p>使用以下命令让openvpn服务开机启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">systemctl <span class="built_in">enable</span> openvpn@server.service</div></pre></td></tr></table></figure>
+<p><strong>通过VPN对客户端的流量（客户端想访问互联网）进行路由</strong></p>
+<p>服务端必须要开启IPv4包转发功能（服务器上多个网卡接口之间转发IPv4的包）。查看是否开启：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cat /proc/sys/net/ipv4/ip_forward</div></pre></td></tr></table></figure>
+<p>如果输出是1则说明开启了，是0的话就运行以下命令进行开启</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">echo</span> <span class="string">"net.ipv4.ip_forward = 1"</span> &gt;&gt; /etc/sysctl.conf</div><div class="line">sysctl -p</div></pre></td></tr></table></figure>
+<p>下面我们配置防火墙规则</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">firewall-cmd --permanent --add-service openvpn</div><div class="line">firewall-cmd --permanent --zone=trusted --add-interface=tun0</div><div class="line">firewall-cmd --permanent --zone=trusted --add-masquerade</div><div class="line">DEV=$(ip route get 8.8.8.8 | awk <span class="string">'NR==1 &#123;print $(NF-2)&#125;'</span>)</div><div class="line">firewall-cmd --permanent --direct --passthrough ipv4 -t nat -A POSTROUTING <span class="_">-s</span>  10.8.0.0/24 -o <span class="variable">$DEV</span> -j MASQUERADE</div><div class="line">firewall-cmd --reload</div></pre></td></tr></table></figure>
+<h2 id="配置客户端"><a href="#配置客户端" class="headerlink" title="配置客户端"></a>配置客户端</h2><p>无论你使用什么操作系统，都需要传输<code>./build-key</code>脚本生成的<code>client1.key</code>密钥和<code>client1.crt</code>证书，以及证书签发机构认证的<code>ca.crt</code>文件到客户机。你可以通过SSH使用SFTP\FTP或Rsync来传输。我们还需要创建一个<code>client1.ovpn</code>文件，内容如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">ls **YOUR_SERVER_IP_ADDRESS** 1194</div><div class="line">dev tunproto udpresolv-retry infinitenobindpersist-keypersist-tunverb 3</div><div class="line">key client1.keyca ca.crtcert client1.crtcomp-lzo</div></pre></td></tr></table></figure>
+<h3 id="Linux"><a href="#Linux" class="headerlink" title="Linux"></a>Linux</h3><p>安装最新版OpenVPN</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sudo yum install openvpn <span class="comment"># CentOS &amp;&amp; Fedora </span></div><div class="line">sudo apt-get install openvpn <span class="comment"># Debian &amp;&amp; Ubuntu &amp;&amp; Mint </span></div><div class="line">sudo pacman -S openvpn <span class="comment"># ArchLinux</span></div></pre></td></tr></table></figure>
+<p>创建一个新目录<code>mkdir ~/.openvpn</code>并且把<code>client1.ovpn</code>，<code>client1.key</code>，<code>client1.crt</code>和<code>ca.crt</code>拷贝进去，使用如下命令开启OpenVPN服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo openvpn --config ~/.openvpn/client1.ovpn</div></pre></td></tr></table></figure>
+<p>注意这目录取决于你的Linux发行版本，你也可以通过GUI工具配置你的OpenVPN客户端。</p>
+<h3 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h3><p>下载并安装最新版客户端，把<code>client1.ovpn</code>，<code>client1.key</code>，<code>client1.crt</code>和<code>ca.crt</code>拷贝到<code>C:\Program Files\OpenVPN\config</code>目录</p>
+<h3 id="Mac-OS"><a href="#Mac-OS" class="headerlink" title="Mac OS"></a>Mac OS</h3><p>下载并安装最新版本tunnelblick，拷贝<code>client1.ovpn</code>,<code>client1.key</code>,<code>client1.crt</code>和<code>ca.crt</code>到<code>Downloads</code>目录.<br>打开应用并找到 “OpenVPN Configuration(s)” ，然后根据屏幕提示操作即可。</p>
+
+            <blockquote>
+                <p>
+                本文地址：
+                <a href="https://blog.welee.space/openvpn/" target="_blank" rel="external">https://blog.welee.space/openvpn/</a>
+                </p>
+                <footer><cite><a href="https://blog.welee.space">@I'm Here</a></cite></footer>
+            </blockquote>
+            </div>
+            
+<nav class="post-nav">
+  
+    <div class="waves-block waves-effect prev fl">
+      <a href="/openvpn-client/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">OpenVPN客户端的封装</h4>
+      </a>
+    </div>
+  
+
+  
+</nav>
+
+
+            
+            
+<div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="openvpn" data-title="OpenVPN服务安装配置简明教程" data-url="https://blog.welee.space/openvpn/index.html"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"welee"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+
+
+
+
+        </div>
+    </div>
+</article>
+    </div>
+  </main>
+<div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+<script>
+var BLOG_SHARE = {
+    title: "OpenVPN服务安装配置简明教程",
+    pic: "/img/logo.png",
+    summary: document.getElementsByName('summary')[0].content,
+    url: "https://blog.welee.space/openvpn/index.html"
+};
+</script>
+<div class="global-share" id="global-share">
+    <div class="tit">分享到：</div>
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" href="javascript:;" data-title="微博" data-service="tsina">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns" href="javascript:;" data-title="微信" data-service="weixin">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" href="javascript:;" data-title=" QQ" data-service="cqq">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" href="javascript:;" data-title=" Facebook" data-service="fb">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" href="javascript:;" data-title=" Twitter" data-service="twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="douban share-sns" href="javascript:;" data-title="豆瓣" data-service="douban">
+          豆
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+<script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+
+<script src="/js/main.js"></script>
+
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<script type="text/template" id="search-tpl">
+<li class="item">
+    <a href="/{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</script>
+
+<script src="/js/search.js"></script>
+
+
+
+
+
+<script src="http://s95.cnzz.com/z_stat.php?id=1259258963&web_id=1259258963"></script>
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', '70038957', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+</body>
+</html>

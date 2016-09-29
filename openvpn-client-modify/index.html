@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>OpenVPN二次开发 | I&#39;m Here | 给岁月以文明</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  
+  <meta name="theme-color" content="#3F51B5">
+  
+  
+  <meta name="keywords" content="OpenVPN">
+  <meta name="description" content="当前开发仓库主开发者库(GitHub)在OpenVPN 2.3-alpha1 之后OpenVPN项目架构中引入了几个重大改动，比如把几个大的代码块从主代码树上剥离成子项目。
+
+openvpn: 一个常规开源项目，使用基于autotools的GNU构建系统并且和其他项目一样它的构建系统只用于自身的构建。
+
+openvpn-build: 为了构建各种各样配置的OpenVPN而独立出来的一个项目。这个项">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenVPN二次开发">
+<meta property="og:url" content="https://blog.welee.space/openvpn-client-modify/index.html">
+<meta property="og:site_name" content="I'm Here">
+<meta property="og:description" content="当前开发仓库主开发者库(GitHub)在OpenVPN 2.3-alpha1 之后OpenVPN项目架构中引入了几个重大改动，比如把几个大的代码块从主代码树上剥离成子项目。
+
+openvpn: 一个常规开源项目，使用基于autotools的GNU构建系统并且和其他项目一样它的构建系统只用于自身的构建。
+
+openvpn-build: 为了构建各种各样配置的OpenVPN而独立出来的一个项目。这个项">
+<meta property="og:updated_time" content="2016-07-26T04:57:31.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="OpenVPN二次开发">
+<meta name="twitter:description" content="当前开发仓库主开发者库(GitHub)在OpenVPN 2.3-alpha1 之后OpenVPN项目架构中引入了几个重大改动，比如把几个大的代码块从主代码树上剥离成子项目。
+
+openvpn: 一个常规开源项目，使用基于autotools的GNU构建系统并且和其他项目一样它的构建系统只用于自身的构建。
+
+openvpn-build: 为了构建各种各样配置的OpenVPN而独立出来的一个项目。这个项">
+  
+    <link rel="alternative" href="/atom.xml" title="I&#39;m Here" type="application/atom+xml">
+  
+  <meta name="summary" content="博客后花园，收集-整理-分享">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="loading" class="active"></div>
+
+  <nav id="menu" class="hide" >
+   <div class="inner flex-row-vertical">
+  <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+      <i class="icon icon-lg icon-close"></i>
+  </a>
+  <div class="brand-wrap">
+    <div class="brand">
+      <a href="/" class="avatar"><img src="/img/logo.png"></a>
+      <hgroup class="introduce">
+        <h5 class="nickname">Welee</h5>
+        <a href="mailto:undefined" title="admin@welee.space" class="mail">admin@welee.space</a>
+      </hgroup>
+    </div>
+  </div>
+  <ul class="nav flex-col">
+    
+        <li class="waves-block waves-effect">
+          <a href="/"  >
+            <i class="icon icon-lg icon-home"></i>
+            主页
+          </a>
+        </li>
+    
+        <li class="waves-block waves-effect">
+          <a href="/archives"  >
+            <i class="icon icon-lg icon-archives"></i>
+            归档
+          </a>
+        </li>
+    
+        <li class="waves-block waves-effect">
+          <a href="/tags"  >
+            <i class="icon icon-lg icon-tags"></i>
+            标签
+          </a>
+        </li>
+    
+        <li class="waves-block waves-effect">
+          <a href="https://github.com/cnwelee" target="_blank" >
+            <i class="icon icon-lg icon-github"></i>
+            仓库
+          </a>
+        </li>
+    
+        <li class="waves-block waves-effect">
+          <a href="http://www.weibo.com/welee" target="_blank" >
+            <i class="icon icon-lg icon-weibo"></i>
+            微博
+          </a>
+        </li>
+    
+        <li class="waves-block waves-effect">
+          <a href="/ad"  >
+            <i class="icon icon-lg icon-link"></i>
+            广告
+          </a>
+        </li>
+    
+  </ul>
+
+  <footer class="footer">
+  <p><a rel="license" target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0;vertical-align:middle;" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAAPCAMAAABEF7i9AAAAllBMVEUAAAD///+rsapERER3d3eIiIjMzMzu7u4iIiKUmZO6v7rKzsoODg4RERFVVVUNDQ0NDg0PEA8zMzNLTEtbXltmZmZydnF9gn2AgICPkI+ZmZmqqqq7u7vFxsXIzMgNDQwZGRkgICAhISEkJSMnKCcuMC4xMzE5Ozk7PTtBQkFCQkJDQ0Nna2eGhoaHh4ezuLLGysbd3d1wVGpAAAAA4UlEQVR42q2T1xqCMAyFk7QsBQeKA9x7j/d/OSm22CpX0nzcpA1/T05aAOuBVkMAScQFHLnEwoCo2f1TnQIGoVMewjZEjVFN4GH1Ue1Cn2jWqwfsOOj6wDwGvotsl/c8lv7KIq1eLOsT0HMFHMIE/RZyHnlphryT9zyV+8WH5e8yQw3wnQvgAFxPTKUVi555SHR/lOfLMgVTeDlSfN+TaoUsiTyeIm+bCkHvCA2FUKG48LDtYBZBknsYP/G8NTw0gaaHyuQf4H5pecrB/FYCT2sL9zAfy1Xyjou6L8X2W7YcLyBZCRtnq/zfAAAAAElFTkSuQmCC" /></a></p>
+  <p>I&#39;m Here &copy; 2016</p>
+  <p>Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme
+  <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a></p>
+  <a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-2x icon-rss-square"></i></a>
+</footer>
+
+</div>
+
+  </nav>
+  <main id="main">
+    <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">OpenVPN二次开发</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input " autocomplete="off" placeholder="输入感兴趣的关键字">
+            <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" class="header-icon waves-effect waves-circle waves-light" id="menu-share">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header">
+  <div class="container">
+    <h1 class="author">OpenVPN二次开发</h1>
+    <h5 class="subtitle">
+        
+            <time datetime="2016-04-27T03:11:11.000Z" itemprop="datePublished" class="page-time">
+  2016-04-27
+</time>
+
+
+        
+    </h5>
+  </div>
+</header>
+
+    <div class="container body-wrap">
+      <article id="post-openvpn-client-modify" 
+  class="article article-type-post" itemprop="blogPost">
+    <div class="post-meat flex-row">
+        
+	<ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/OpenVPN/">OpenVPN</a></li></ul>
+
+    </div>
+    <div class="post-body">
+        <aside class="post-widget" id="post-widget">
+
+            
+            <div class="post-share" id="post-share">
+    <div class="tit">分享到：</div>
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" href="javascript:;" data-title="微博" data-service="tsina">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns" href="javascript:;" data-title="微信" data-service="weixin">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" href="javascript:;" data-title=" QQ" data-service="cqq">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" href="javascript:;" data-title=" Facebook" data-service="fb">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" href="javascript:;" data-title=" Twitter" data-service="twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="douban share-sns" href="javascript:;" data-title="豆瓣" data-service="douban">
+          豆
+        </a>
+      </li>
+    </ul>
+ </div>
+
+            
+
+            
+            <nav class="post-toc-wrap" id="post-toc">
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#当前开发仓库"><span class="post-toc-text">当前开发仓库</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#主开发者库-GitHub"><span class="post-toc-text">主开发者库(GitHub)</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#openvpn-git库的分支"><span class="post-toc-text">openvpn.git库的分支</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#废弃的仓库"><span class="post-toc-text">废弃的仓库</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#openvpn-testing"><span class="post-toc-text">openvpn-testing</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#James的SVN仓库"><span class="post-toc-text">James的SVN仓库</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#旧的CVS仓库"><span class="post-toc-text">旧的CVS仓库</span></a></li></ol></li></ol>
+            </nav>
+            
+        </aside>
+
+        <div class="post-main">
+
+            <div class="post-content" id="post-content" itemprop="postContent">
+            <h2 id="当前开发仓库"><a href="#当前开发仓库" class="headerlink" title="当前开发仓库"></a>当前开发仓库</h2><h3 id="主开发者库-GitHub"><a href="#主开发者库-GitHub" class="headerlink" title="主开发者库(GitHub)"></a>主开发者库(GitHub)</h3><p>在OpenVPN 2.3-alpha1 之后OpenVPN项目架构中引入了几个重大改动，比如把几个大的代码块从主代码树上剥离成子项目。</p>
+<ul>
+<li><p><a href="https://github.com/OpenVPN/openvpn" target="_blank" rel="external">openvpn</a>: 一个常规开源项目，使用基于autotools的GNU构建系统并且和其他项目一样它的构建系统只用于自身的构建。</p>
+</li>
+<li><p><a href="https://github.com/OpenVPN/openvpn-build" target="_blank" rel="external">openvpn-build</a>: 为了构建各种各样配置的OpenVPN而独立出来的一个项目。这个项目被分成以下几个部分：</p>
+<ul>
+<li>generic: 一个使用交叉编译的通用构建项目，包含完整的依赖关系。</li>
+<li>msvc: 一个MSVC构建，使用微软自家的msbuild系统。</li>
+<li>windows-nsis: 这是一个WIndows安装包生成器，使用通用组件利用mingw交叉编译构建后使用NSIS打包输出的文件。</li>
+</ul>
+</li>
+<li><p><a href="https://github.com/OpenVPN/tap-windows" target="_blank" rel="external">tap-windows</a>: Windows的TAP驱动（网络驱动器接口标准第5版）,就算OpenVPN不用，这玩意也是很实用的东西。</p>
+</li>
+<li><p><a href="https://github.com/OpenVPN/tap-windows6" target="_blank" rel="external">tap-windows6</a>: Windows的TAP驱动（网络驱动器接口标准第6版）,这玩意很实用，不止是OpenVPN可以用到它。</p>
+</li>
+<li><p><a href="https://github.com/OpenVPN/easy-rsa" target="_blank" rel="external">easy-rsa</a>: 用来生成SSL证书的脚本，这里当然是OpenVPN要用，当然这其实是一个很通用的程序，在其他场景也会用到。</p>
+</li>
+</ul>
+<p>大多数GitHub仓库的镜像都可以在<a href="http://sourceforge.net/p/openvpn/_list/git?source=navbar" target="_blank" rel="external">SourceForge.net</a>找到。</p>
+<h3 id="openvpn-git库的分支"><a href="#openvpn-git库的分支" class="headerlink" title="openvpn.git库的分支"></a>openvpn.git库的分支</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">master	    -- 开发主分支，所有的新补丁都应当基于本分支</div><div class="line">release/2.1 -- 所有和2.1发行版相关的东西</div><div class="line">release/2.2 -- 所有和2.2发行版相关的东西</div><div class="line">release/2.3 -- 所有和2.3发行版相关的东西</div></pre></td></tr></table></figure>
+<p>发行版分支不会有任何活跃的功能改动，只会在发行后应用一些典型的bug修复。每个重大发布(2.X)都会释出一个新的发行版分支。所有的bug修复都应当基于主分支开发，将从主分支和合适的发行分支之间做合适的选择，以决定是否在小版本(2.1.X,2.2.X等)中修复。</p>
+<p>大小版本的发行版同时也都<a href="http://www.kernel.org/pub/software/scm/git/docs/git-tag.html" target="_blank" rel="external">加了标签</a>, 并且可以使用以下git命令检查：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ git tag <span class="_">-l</span>               <span class="comment"># 列出所有标签</span></div><div class="line">$ git tag -v &lt;tag name&gt;    <span class="comment"># 验证签名的标签</span></div><div class="line">$ git show &lt;tag name&gt;      <span class="comment"># 显示标签信息和提交时间点</span></div></pre></td></tr></table></figure>
+<p>更多详细开发进程可以<a href="https://community.openvpn.net/openvpn/wiki/DeveloperDocumentation" target="_blank" rel="external">点击这里查阅</a>。</p>
+<h2 id="废弃的仓库"><a href="#废弃的仓库" class="headerlink" title="废弃的仓库"></a>废弃的仓库</h2><h3 id="openvpn-testing"><a href="#openvpn-testing" class="headerlink" title="openvpn-testing"></a>openvpn-testing</h3><p>这个仓库并不经常被使用，尽管openvpn-testing.git的master分支与openvpn.gti的master分支保持同步。在openvpn-testing的git树上有很多分支，每个分支都单独跟踪不同的补丁。分支结构如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">master			-- 这个和openvpn.git的master是完全相同的分支</div><div class="line">svn-branch/BETA21	-- 这个和James以前的SVN Beta21是一样的分支，不活跃。</div><div class="line">svn-branch/2.1		-- 这是James的2.1版SVN分支的git镜像，James做他的主要工作，会合并到主分支。</div><div class="line">release/2.1		-- 这只包含2.1发行版相关的源码(以前的released-2.1)</div><div class="line">release/2.2		-- 这只包含2.2发行版相关的源码(以前的beta-2.2)</div><div class="line">obsolete/*		-- 废弃的分支</div><div class="line">&#123;featureX&#125;		-- 只包含X特性的补丁</div><div class="line">&#123;featureY&#125;		-- 只包含Y特性的补丁</div><div class="line">&#123;featureZ&#125;		-- 只包含Z特性的补丁</div><div class="line">frp			-- 正经历特性移除进程的特性</div><div class="line">experimental		-- 和其他带有实验性特性的分支合并的主分支，只用于测试意图不用于开发。</div></pre></td></tr></table></figure>
+<p>开发者们如果要向分支贡献一些特性必须确保自己的分支定期基于主分支做rebase. 这同样适用于想看到他们的工作成果被采纳的开发维护git树的其他人员。”拥有”一个特性分支的开发者要向所有在那个分支的开发者负责。</p>
+<p>在obsolete目录下的这些分支混杂着一些将不再被使用的分支，当然其中有一些可能有历史价值，只是被放在一边。还有时候是因为一些分支被合并到主分支并且现在已经主要在主分支开发了才被放到这里。当他们的历史参考价值不再那么明显的时候最终会被删除掉。</p>
+<p>experimental分支是一个集所有在开发中和主分支下特性的分支。这个分支可能会不时地被完全重构。考虑到这个分支是一个”仅供参考和测试”的分支，不可以在这个分支下直接做开发。</p>
+<p>获取最新的openvpn-testing树，使用</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git <span class="built_in">clone</span> git://openvpn.git.sourceforge.net/gitroot/openvpn/openvpn-testing.git</div></pre></td></tr></table></figure>
+<p>你将会在这里获取到openvpn-testing目录。当进入这个目录默认会使用主分支，使用以下命令切换到实验分支</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git checkout -b experimental origin/experimental</div></pre></td></tr></table></figure>
+<p>使用以下命令查看所有的可用分支</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git branch <span class="_">-a</span></div></pre></td></tr></table></figure>
+<p>使用这个git树的experimental分支的你通常是希望用上”最新最好”的特性并且你愿意接受这些通常不怎么稳定的实验性代码。</p>
+<h3 id="James的SVN仓库"><a href="#James的SVN仓库" class="headerlink" title="James的SVN仓库"></a>James的SVN仓库</h3><p>James Yonan 曾经把他自己的SVN仓库托管在openvpn.net，但是在2013年末或2014年初这段时间下线了，取而代之的是James放到GitHub上的openvpn.git。残余的SVN仓库在openvpn-testing.git，SF.net上是可以看到的。</p>
+<h3 id="旧的CVS仓库"><a href="#旧的CVS仓库" class="headerlink" title="旧的CVS仓库"></a>旧的CVS仓库</h3><p>对我们之中的老顽固我们提供旧的CVS树，当然已经被转换成为了一个不活跃的git树。这个树可以在这里浏览或本地下载：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git <span class="built_in">clone</span> git://openvpn.git.sourceforge.net/gitroot/openvpn/openvpn-historical-cvs.git</div></pre></td></tr></table></figure>
+<p>需要注意的是这个树上不会有新的开发活动了。</p>
+
+            <blockquote>
+                <p>
+                本文地址：
+                <a href="https://blog.welee.space/openvpn-client-modify/" target="_blank" rel="external">https://blog.welee.space/openvpn-client-modify/</a>
+                </p>
+                <footer><cite><a href="https://blog.welee.space">@I'm Here</a></cite></footer>
+            </blockquote>
+            </div>
+            
+<nav class="post-nav">
+  
+    <div class="waves-block waves-effect prev fl">
+      <a href="/elk/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">CentOS7部署ELK</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next fr">
+      <a href="/openvpn-client-windows/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">Windows版OpenVPN客户端的封装</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+            
+            
+<div class="duoshuo">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="openvpn-client-modify" data-title="OpenVPN二次开发" data-url="https://blog.welee.space/openvpn-client-modify/index.html"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+	var duoshuoQuery = {short_name:"welee"};
+	(function() {
+		var ds = document.createElement('script');
+		ds.type = 'text/javascript';ds.async = true;
+		ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+		ds.charset = 'UTF-8';
+		(document.getElementsByTagName('head')[0] 
+		 || document.getElementsByTagName('body')[0]).appendChild(ds);
+	})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</div>
+
+
+
+
+
+        </div>
+    </div>
+</article>
+    </div>
+  </main>
+<div class="mask" id="mask"></div>
+<a href="javascript:;" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+<script>
+var BLOG_SHARE = {
+    title: "OpenVPN二次开发",
+    pic: "/img/logo.png",
+    summary: document.getElementsByName('summary')[0].content,
+    url: "https://blog.welee.space/openvpn-client-modify/index.html"
+};
+</script>
+<div class="global-share" id="global-share">
+    <div class="tit">分享到：</div>
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" href="javascript:;" data-title="微博" data-service="tsina">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns" href="javascript:;" data-title="微信" data-service="weixin">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" href="javascript:;" data-title=" QQ" data-service="cqq">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" href="javascript:;" data-title=" Facebook" data-service="fb">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" href="javascript:;" data-title=" Twitter" data-service="twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="douban share-sns" href="javascript:;" data-title="豆瓣" data-service="douban">
+          豆
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+<script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+
+<script src="/js/main.js"></script>
+
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<script type="text/template" id="search-tpl">
+<li class="item">
+    <a href="/{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</script>
+
+<script src="/js/search.js"></script>
+
+
+
+
+
+<script src="http://s95.cnzz.com/z_stat.php?id=1259258963&web_id=1259258963"></script>
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', '70038957', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+</body>
+</html>
