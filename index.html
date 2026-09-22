@@ -73,6 +73,28 @@
   .run-btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
   .run-btn:hover{opacity:0.9}
   @media(max-width:720px){.demo-grid{grid-template-columns:1fr}}
+
+  /* quick demo */
+  .quickdemo{padding:10px 0 20px}
+  .qd-card{background:var(--bg2);border:1px solid var(--line);border-radius:14px;
+           padding:28px;max-width:680px;margin:0 auto}
+  .qd-title{font-size:13px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px}
+  .qd-inputrow{display:flex;gap:10px}
+  #qd-input{flex:1;background:var(--bg);border:1px solid var(--line);border-radius:8px;
+            color:var(--fg);font-family:var(--mono);font-size:15px;padding:12px 16px}
+  #qd-input:focus{outline:none;border-color:var(--accent)}
+  #qd-go{background:var(--accent);color:#0a0e14;border:none;border-radius:8px;
+         padding:12px 24px;font-weight:700;cursor:pointer;font-size:15px}
+  .qd-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .qd-chips button{background:transparent;border:1px solid var(--line);color:var(--muted);
+                   border-radius:16px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:var(--mono)}
+  .qd-chips button:hover{color:var(--accent);border-color:var(--accent)}
+  .qd-out{margin-top:18px;min-height:70px;display:flex;align-items:center;justify-content:center;
+          flex-direction:column;gap:6px}
+  .qd-answer{font-size:32px;font-weight:800;color:var(--accent);letter-spacing:-1px}
+  .qd-meta{font-size:12px;color:var(--muted)}
+  .qd-placeholder{color:var(--muted);font-size:14px}
+  .qd-typing{color:var(--cyan)}
 </style>
 </head>
 <body>
@@ -93,6 +115,22 @@
     <p class="sub">Cev 是一个单文件 C 语言实现的类型化决策引擎。它接收 state 和类型化问题，并行返回带概率的结构化决策——不聊天、不写代码、不需要 GPU。与 Jev API 完全兼容，快到可以在每次请求里直接调用。</p>
     <a class="cta" href="#api">立即开始</a>
     <a class="cta ghost" href="#bench">看性能对比</a>
+  </div>
+
+  <div class="quickdemo">
+    <div class="qd-card">
+      <div class="qd-title">⚡ 实时试一下</div>
+      <div class="qd-inputrow">
+        <input id="qd-input" type="text" placeholder="输入一个问题，比如：乌龟和兔子谁更快？" />
+        <button id="qd-go" onclick="qdAnswer()">问</button>
+      </div>
+      <div class="qd-chips">
+        <button onclick="qdSet('乌龟和兔子谁更快？')">乌龟和兔子谁更快？</button>
+        <button onclick="qdSet('咖啡和茶哪个更好喝？')">咖啡和茶哪个更好喝？</button>
+        <button onclick="qdSet('周末去爬山还是宅家？')">爬山还是宅家？</button>
+      </div>
+      <div id="qd-out" class="qd-out"><span class="qd-placeholder">结果会出现在这里…</span></div>
+    </div>
   </div>
 
   <section id="why">
@@ -247,6 +285,45 @@ function decide(q){
   const v=_f64();
   return {id:q.id,type:'noul',value:Math.round(v*10000)/10000};
 }
+
+// --- quick demo: extract options from "A和B谁/哪个?" patterns ---
+function qdExtract(q){
+  q = (q||'').trim();
+  // 中文: A和B谁/哪个...
+  let m = q.match(/^(.+?)和(.+?)[谁哪].{0,6}[？?]?$/);
+  if(m) return [m[1].trim(), m[2].trim()];
+  // 英文: A or B?
+  m = q.match(/^(.+?)\s+or\s+(.+?)\?\s*$/i);
+  if(m) return [m[1].trim(), m[2].trim()];
+  return null;
+}
+function qdSet(s){
+  document.getElementById('qd-input').value = s;
+  qdAnswer();
+}
+function qdAnswer(){
+  const out = document.getElementById('qd-out');
+  const q = document.getElementById('qd-input').value;
+  const opts = qdExtract(q);
+  if(!opts || opts.length < 2){
+    out.innerHTML = '<span class="qd-placeholder">试试这种格式：A和B谁更快？</span>';
+    return;
+  }
+  out.innerHTML = '<span class="qd-typing">thinking…</span>';
+  setTimeout(()=>{
+    const t0 = performance.now();
+    const res = decide({type:'choice', options:opts});
+    const t1 = performance.now();
+    out.innerHTML =
+      '<div class="qd-answer">'+res.value+'</div>'+
+      '<div class="qd-meta">置信度 '+ (res.confidence*100).toFixed(1) +'% · '+
+      (t1-t0).toFixed(2) +' ms · 本地计算，0 token</div>';
+  }, 200);
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  const inp = document.getElementById('qd-input');
+  inp.addEventListener('keydown', e=>{ if(e.key==='Enter') qdAnswer(); });
+});
 
 function cevRun(){
   const out=document.getElementById('qout');
