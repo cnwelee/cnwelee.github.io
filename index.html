@@ -289,13 +289,28 @@ function decide(q){
 // --- quick demo: extract options from "A和B谁/哪个?" patterns ---
 function qdExtract(q){
   q = (q||'').trim();
-  // 中文: A和B谁/哪个...
+  // A和B谁/哪个...
   let m = q.match(/^(.+?)和(.+?)[谁哪].{0,6}[？?]?$/);
   if(m) return [m[1].trim(), m[2].trim()];
-  // 英文: A or B?
-  m = q.match(/^(.+?)\s+or\s+(.+?)\?\s*$/i);
+  // A还是B...
+  m = q.match(/^(.+?)还是(.+?)[？?]?$/);
+  if(m) return [m[1].trim(), m[2].trim()];
+  // A vs B
+  m = q.match(/^(.+?)\s*[vV][sS.]\.?\s*(.+?)\?\s*$/);
   if(m) return [m[1].trim(), m[2].trim()];
   return null;
+}
+function qdFallback(q){
+  const jokes = [
+    "我只是个决策引擎，不是人生导师 🤖",
+    "这个问题超出了我能做选择的范畴…要不抛个硬币？",
+    "你问我？我也很绝望啊",
+    "这种哲学问题，建议咨询一下资深社畜",
+    "输入格式：A和B谁更快？ / 咖啡还是茶？",
+    "我只会做选择，不会做决策（认真脸）",
+    "周末？周末不是用来睡觉的吗",
+  ];
+  return jokes[Math.floor(_f64()*jokes.length)];
 }
 function qdSet(s){
   document.getElementById('qd-input').value = s;
@@ -306,7 +321,8 @@ function qdAnswer(){
   const q = document.getElementById('qd-input').value;
   const opts = qdExtract(q);
   if(!opts || opts.length < 2){
-    out.innerHTML = '<span class="qd-placeholder">试试这种格式：A和B谁更快？</span>';
+    out.innerHTML = '<div class="qd-answer" style="font-size:22px">🤔</div>'+
+      '<div class="qd-meta">'+qdFallback(q)+'</div>';
     return;
   }
   out.innerHTML = '<span class="qd-typing">thinking…</span>';
