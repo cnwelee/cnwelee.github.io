@@ -115,9 +115,10 @@
     <p class="sub">Cev 是一个单文件 C 语言实现的类型化决策引擎。它接收 state 和类型化问题，并行返回带概率的结构化决策——不聊天、不写代码、不需要 GPU。与 Jev API 完全兼容，快到可以在每次请求里直接调用。</p>
     <a class="cta" href="#api">立即开始</a>
     <a class="cta ghost" href="#bench">看性能对比</a>
+    <a class="cta ghost" onclick="toggleDemo()">在线测试</a>
   </div>
 
-  <div class="quickdemo">
+  <div class="quickdemo" id="quickdemo" style="display:none">
     <div class="qd-card">
       <div class="qd-title">⚡ 实时试一下</div>
       <div class="qd-inputrow">
@@ -287,6 +288,12 @@ function decide(q){
 }
 
 // --- quick demo: extract options from "A和B谁/哪个?" patterns ---
+function toggleDemo(){
+  const d = document.getElementById('quickdemo');
+  const show = d.style.display === 'none' || !d.style.display;
+  d.style.display = show ? 'block' : 'none';
+  if(show) d.scrollIntoView({behavior:'smooth', block:'center'});
+}
 function qdExtract(q){
   q = (q||'').trim();
   // A和B谁/哪个...
