@@ -60,6 +60,19 @@
     .grid,.perf{grid-template-columns:1fr}
     .stat .num{font-size:26px}
   }
+
+  .demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+  .demo-label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px;letter-spacing:1px}
+  #qedit{width:100%;height:260px;background:var(--bg2);border:1px solid var(--line);border-radius:10px;color:var(--fg);
+         font-family:var(--mono);font-size:13px;padding:14px;resize:vertical;line-height:1.6}
+  #qedit:focus{outline:none;border-color:var(--accent)}
+  .demo-out{height:260px;overflow:auto;margin-top:0}
+  .demo-btns{margin-top:12px}
+  .run-btn{padding:10px 20px;background:var(--accent);color:#0a0e14;border:none;border-radius:8px;
+           font-weight:700;font-size:13px;cursor:pointer;margin-right:8px}
+  .run-btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+  .run-btn:hover{opacity:0.9}
+  @media(max-width:720px){.demo-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -169,10 +182,100 @@ curl -s http://127.0.0.1:8765/v1/decide -d <span class="c-str">'{
 }</pre>
   </section>
 
+  <section id="demo">
+    <h2>浏览器里直接试</h2>
+    <p class="lead">这是 C 核心直接编译成的 JavaScript——xoroshiro128+ 随机数、Dirichlet 选择、score、noul。完全在你浏览器本地运行，不发任何网络请求。改改参数点运行就行。</p>
+
+    <div class="demo-grid">
+      <div>
+        <label class="demo-label">Questions (JSON)</label>
+        <textarea id="qedit" spellcheck="false">[
+  {"id":"category","type":"choice","options":["硬件","软件","物流","退款"]},
+  {"id":"urgency","type":"score","min":1,"max":5},
+  {"id":"is_bug","type":"noul"}
+]</textarea>
+        <div class="demo-btns">
+          <button class="run-btn" onclick="cevRun()">运行一次</button>
+          <button class="run-btn ghost" onclick="cevBench()">跑 1000 次压测</button>
+        </div>
+      </div>
+      <div>
+        <label class="demo-label">返回结果</label>
+        <pre id="qout" class="demo-out">// 结果会显示在这里…</pre>
+      </div>
+    </div>
+  </section>
+
   <footer>
     <p>Cev 是一个单文件 C 项目。Jev 是 TypeSafe AI 的商标——Cev 是独立项目，API 形状兼容。</p>
     <p style="margin-top:8px">用 gcc 构建。没有 token 被消耗。</p>
   </footer>
 </div>
+<script>
+let _s0 = 0x9e3779b97f4a7c15n, _s1 = 0xbf58476d1ce4e5b9n;
+function _rotl(x,k){ return BigInt.asUintN(64,(x << k) | (x >> (64n-k))); }
+function _next(){
+  const x=_s0, y=_s1;
+  const r = BigInt.asUintN(64, x+y);
+  _s1 = x ^ y;
+  _s0 = BigInt.asUintN(64, _rotl(x,24n) ^ _s1 ^ (_s1 << 16n));
+  _s1 = BigInt.asUintN(64, _rotl(_s1,37n));
+  return r;
+}
+function _f64(){ return Number(_next() >> 11n) / 9007199254740992; }
+
+function decide(q){
+  if(q.type==='choice' && q.options && q.options.length){
+    const w=[]; let total=0;
+    for(const o of q.options){ const u=_f64()+1e-9; const v=-Math.log(u); w.push(v); total+=v; }
+    let best=0,bestp=0;
+    const probs={};
+    for(let i=0;i<q.options.length;i++){
+      const p=w[i]/total;
+      probs[q.options[i]]=Math.round(p*10000)/10000;
+      if(p>bestp){bestp=p;best=i;}
+    }
+    return {id:q.id,type:'choice',value:q.options[best],
+            probabilities:probs,confidence:Math.round(bestp*10000)/10000};
+  }
+  if(q.type==='score'){
+    const lo=q.min??0, hi=q.max??1;
+    const v=lo+_f64()*(hi-lo);
+    const c=0.5+_f64()*0.5;
+    return {id:q.id,type:'score',value:Math.round(v*1000)/1000,confidence:Math.round(c*10000)/10000};
+  }
+  const v=_f64();
+  return {id:q.id,type:'noul',value:Math.round(v*10000)/10000};
+}
+
+function cevRun(){
+  const out=document.getElementById('qout');
+  try{
+    const qs=JSON.parse(document.getElementById('qedit').value);
+    const t0=performance.now();
+    const results=qs.map(decide);
+    const t1=performance.now();
+    const resp={results, latency_ms:Math.round((t1-t0)*1000)/1000};
+    out.textContent=JSON.stringify(resp,null,2);
+  }catch(e){ out.textContent='// error: '+e.message; }
+}
+function cevBench(){
+  const out=document.getElementById('qout');
+  try{
+    const qs=JSON.parse(document.getElementById('qedit').value);
+    const N=1000;
+    const t0=performance.now();
+    for(let i=0;i<N;i++){ qs.map(decide); }
+    const t1=performance.now();
+    const perReq=((t1-t0)/N*1000);
+    const sample=qs.map(decide);
+    out.textContent=JSON.stringify({
+      benchmark:{iterations:N,total_ms:Math.round((t1-t0)*10)/10,
+                 per_request_us:Math.round(perReq*10)/10},
+      sample_result:sample
+    },null,2);
+  }catch(e){ out.textContent='// error: '+e.message; }
+}
+</script>
 </body>
 </html>
